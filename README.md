@@ -12,10 +12,15 @@ The Patient API provides a simple HTTP interface for retrieving patient data wit
 HealthService/
 ├── src/
 │   └── Patient/
-│       └── HealthService.Patient.Api/   # Minimal API project
+│       └── HealthService.Patient.Api/
 │           ├── Data/                    # Repository interface and in-memory implementation
-│           └── Models/                  # Patient domain model
-└── HealthService.slnx                   # Solution file
+│           ├── Endpoints/               # Endpoint registration extension methods
+│           ├── Models/                  # Patient domain model
+│           └── Services/               # Service layer (IPatientService / PatientService)
+├── tests/
+│   └── Patient/
+│       └── HealthService.Patient.Api.Tests/   # xUnit test project
+└── HealthService.slnx
 ```
 
 ## Endpoints
@@ -29,10 +34,10 @@ HealthService/
 ```json
 {
   "id": 1,
-  "nhsNumber": "ABC123456",
+  "nhsNumber": "485 777 3456",
   "name": "Alice Hartley",
-  "dateOfBirth": "1985-04-12T00:00:00",
-  "gpPractice": "Riverside Medical Centre"
+  "dateOfBirth": "1985-03-12T00:00:00",
+  "gpPractice": "Northside Medical Centre"
 }
 ```
 
@@ -46,9 +51,13 @@ HealthService/
 
 ## Key Design Decisions
 
-### Minimal API over Controller-Based API
+### Minimal API with Clean Separation of Concerns
 
-The project uses ASP.NET Core's [Minimal API](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis) pattern rather than the traditional MVC controller approach. This is a deliberate choice to align with modern .NET conventions: endpoints are defined concisely in `Program.cs` using `MapGet()`, reducing boilerplate and making the routing intent immediately visible.
+The project uses ASP.NET Core's [Minimal API](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis) pattern rather than traditional MVC controllers. A common pitfall with Minimal APIs is letting `Program.cs` become a dumping ground — so endpoint registration is extracted into a `PatientEndpoints` static extension class, keeping `Program.cs` as thin wiring only. This demonstrates understanding of the pattern and its trade-offs.
+
+### Service Layer
+
+A `PatientService` sits between the endpoint handlers and the repository, behind an `IPatientService` interface. This gives the endpoints a clean dependency to program against and a natural home for any business logic that accumulates over time (validation, enrichment, authorisation checks). It also makes the endpoint handlers independently testable without needing to stand up a full HTTP stack.
 
 ### Correct HTTP Semantics
 
@@ -69,7 +78,7 @@ OpenAPI is configured out of the box (via `Microsoft.AspNetCore.OpenApi`), expos
 
 ### Dependency Injection
 
-The repository is registered with ASP.NET Core's built-in DI container and injected directly into endpoint handlers — keeping the code testable and decoupled without reaching for third-party IoC containers.
+Services and repositories are registered with ASP.NET Core's built-in DI container and injected into endpoint handlers and services — keeping the code testable and decoupled without reaching for third-party IoC containers.
 
 ## Running the API
 
@@ -81,8 +90,23 @@ The API will be available at:
 - HTTP: `http://localhost:5162`
 - HTTPS: `https://localhost:7288`
 
+## Running the Tests
+
+```bash
+dotnet test
+```
+
+Or to run only the Patient API tests:
+
+```bash
+dotnet test tests/Patient/HealthService.Patient.Api.Tests
+```
+
+Tests are written with [xUnit](https://xunit.net/) and [Moq](https://github.com/devlooped/moq). The test project targets the service layer, using a mocked `IPatientRepository` to verify behaviour in isolation.
+
 ## Tech Stack
 
 - **.NET 10**
 - **ASP.NET Core Minimal APIs**
 - **Microsoft.AspNetCore.OpenApi**
+- **xUnit** + **Moq** (testing)
