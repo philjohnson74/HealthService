@@ -1,0 +1,16 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+
+## Rider / JetBrains
+.idea/
+
+## VS Code
+.vscode/
+
+## Build output
+out/
+publish/
