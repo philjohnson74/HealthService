@@ -20,6 +20,8 @@ HealthService/
 ├── tests/
 │   └── Patient/
 │       └── HealthService.Patient.Api.Tests/   # xUnit test project
+│           ├── Data/                          # Repository tests
+│           └── Services/                      # Service layer tests
 └── HealthService.slnx
 ```
 
