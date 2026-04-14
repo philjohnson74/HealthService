@@ -38,7 +38,7 @@ HealthService/
   "id": 1,
   "nhsNumber": "485 777 3456",
   "name": "Alice Hartley",
-  "dateOfBirth": "1985-03-12T00:00:00",
+  "dateOfBirth": "1985-03-12",
   "gpPractice": "Northside Medical Centre"
 }
 ```
@@ -74,9 +74,26 @@ This makes the API predictable and easy to consume correctly.
 
 Data is stored in memory via `InMemoryPatientRepository`, seeded with a small set of example patients. This keeps the MVP self-contained with no external dependencies (no database setup required to run). The repository is abstracted behind an `IPatientRepository` interface, so swapping in a real persistence layer (e.g. Entity Framework Core) is a straightforward step.
 
-### OpenAPI Support
+### OpenAPI and Scalar API Reference
 
-OpenAPI is configured out of the box (via `Microsoft.AspNetCore.OpenApi`), exposed in the Development environment. This provides automatic API documentation and makes the API immediately explorable.
+OpenAPI is configured out of the box (via `Microsoft.AspNetCore.OpenApi`), and [Scalar](https://github.com/scalar/scalar) is wired up to provide an interactive API reference UI — both are exposed in the Development environment only.
+
+Scalar is a modern alternative to Swagger UI. It reads the generated OpenAPI spec and presents a browser-based interface where developers can browse endpoints, inspect request/response schemas, and execute live requests against the running API without needing a separate tool like Postman or curl.
+
+### Response DTO (`PatientResponse`)
+
+The API returns a `PatientResponse` DTO rather than the `Patient` domain model directly. This creates an explicit, stable contract between the API and its consumers, decoupled from the internal domain model.
+
+**Why this matters for the current GET endpoint:**
+- **Security** — any field added to the `Patient` domain model in the future (audit timestamps, soft-delete flags, internal notes) is not automatically exposed to callers. The response shape is opt-in, not opt-out.
+- **Shaping** — the DTO can present data differently from how it is stored. For example, `PatientResponse` exposes `DateOfBirth` as `DateOnly` (a date string with no time component) rather than the `DateTime` held on the domain model — which is more semantically correct for a date of birth and avoids a misleading `T00:00:00` suffix in the response.
+
+**Benefits if a `POST /patients` or `PUT /patients/{id}` endpoint were added:**
+
+A separate `CreatePatientRequest` or `UpdatePatientRequest` DTO would provide:
+- **Validation** — attributes like `[Required]` and `[Range]`, or a FluentValidation ruleset, can be applied to the incoming DTO without polluting the domain model.
+- **Over-posting protection** — callers cannot supply fields like `Id` that should only be set by the system. The request DTO exposes only what the API intentionally accepts.
+- **Separation of concerns** — the shape of what is written can differ from what is read, without compromising the domain model or leaking internal structure.
 
 ### Dependency Injection
 
@@ -91,6 +108,19 @@ dotnet run --project src/Patient/HealthService.Patient.Api
 The API will be available at:
 - HTTP: `http://localhost:5162`
 - HTTPS: `https://localhost:7288`
+
+### Interactive API Reference (Scalar)
+
+With the API running in Development, open the Scalar UI in your browser:
+
+```
+http://localhost:5162/scalar/v1
+```
+
+From there you can:
+- Browse the available endpoints and their expected request/response shapes
+- Send live requests directly from the browser — no Postman or curl required
+- Inspect the raw OpenAPI spec at `http://localhost:5162/openapi/v1.json`
 
 ## Running the Tests
 
@@ -111,4 +141,5 @@ Tests are written with [xUnit](https://xunit.net/) and [Moq](https://github.com/
 - **.NET 10**
 - **ASP.NET Core Minimal APIs**
 - **Microsoft.AspNetCore.OpenApi**
+- **Scalar** (interactive API reference UI)
 - **xUnit** + **Moq** (testing)

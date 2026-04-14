@@ -1,3 +1,4 @@
+using HealthService.Patient.Api.Models;
 using HealthService.Patient.Api.Services;
 
 namespace HealthService.Patient.Api.Endpoints;
@@ -10,7 +11,7 @@ public static class PatientEndpoints
         {
             var patient = service.GetById(id);
             return patient is not null
-                ? Results.Ok(patient)
+                ? Results.Ok(PatientResponse.From(patient))
                 : Results.NotFound(new { message = $"Patient with ID {id} was not found." });
         })
         .WithName("GetPatientById");
