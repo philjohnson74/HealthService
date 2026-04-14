@@ -74,9 +74,11 @@ This makes the API predictable and easy to consume correctly.
 
 Data is stored in memory via `InMemoryPatientRepository`, seeded with a small set of example patients. This keeps the MVP self-contained with no external dependencies (no database setup required to run). The repository is abstracted behind an `IPatientRepository` interface, so swapping in a real persistence layer (e.g. Entity Framework Core) is a straightforward step.
 
-### OpenAPI Support
+### OpenAPI and Scalar API Reference
 
-OpenAPI is configured out of the box (via `Microsoft.AspNetCore.OpenApi`), exposed in the Development environment. This provides automatic API documentation and makes the API immediately explorable.
+OpenAPI is configured out of the box (via `Microsoft.AspNetCore.OpenApi`), and [Scalar](https://github.com/scalar/scalar) is wired up to provide an interactive API reference UI — both are exposed in the Development environment only.
+
+Scalar is a modern alternative to Swagger UI. It reads the generated OpenAPI spec and presents a browser-based interface where developers can browse endpoints, inspect request/response schemas, and execute live requests against the running API without needing a separate tool like Postman or curl.
 
 ### Dependency Injection
 
@@ -91,6 +93,19 @@ dotnet run --project src/Patient/HealthService.Patient.Api
 The API will be available at:
 - HTTP: `http://localhost:5162`
 - HTTPS: `https://localhost:7288`
+
+### Interactive API Reference (Scalar)
+
+With the API running in Development, open the Scalar UI in your browser:
+
+```
+http://localhost:5162/scalar/v1
+```
+
+From there you can:
+- Browse the available endpoints and their expected request/response shapes
+- Send live requests directly from the browser — no Postman or curl required
+- Inspect the raw OpenAPI spec at `http://localhost:5162/openapi/v1.json`
 
 ## Running the Tests
 
@@ -111,4 +126,5 @@ Tests are written with [xUnit](https://xunit.net/) and [Moq](https://github.com/
 - **.NET 10**
 - **ASP.NET Core Minimal APIs**
 - **Microsoft.AspNetCore.OpenApi**
+- **Scalar** (interactive API reference UI)
 - **xUnit** + **Moq** (testing)
