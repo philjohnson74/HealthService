@@ -172,6 +172,19 @@ dotnet test --filter "FullyQualifiedName~Integration"
 - `GET /patients/{id}` with an unknown ID returns `404` with an `ErrorResponse` body containing the patient ID
 - `GET /patients/abc` with a non-integer ID returns `404` — the `:int` route constraint means the route does not match at all rather than returning a `400`
 
+## Continuous Integration
+
+A GitHub Actions workflow runs on every push to `dev` and on every pull request targeting `main`.
+
+**Why these two triggers:**
+
+- **Push to `dev`** — gives fast feedback during active development. Test failures are caught and fixed on the feature branch before they have a chance to accumulate or block others.
+- **Pull request to `main`** — acts as a hard quality gate before any code reaches the stable branch. The workflow must pass before a merge is permitted, making it impossible to introduce a regression into `main` undetected.
+
+Merging to `main` is intentionally not a separate trigger — if the PR check passed, running the same suite again on merge would be redundant and waste CI time.
+
+To enforce the PR check as a required status check, go to **Settings → Branches → Add rule for `main`** and enable **Require status checks to pass before merging**, selecting the `Build and Test` check. This makes the gate enforceable at the repository level rather than relying on convention.
+
 ## Tech Stack
 
 - **.NET 10**
