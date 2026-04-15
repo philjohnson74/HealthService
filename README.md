@@ -51,6 +51,8 @@ HealthService/
 }
 ```
 
+> The error body is typed as `ErrorResponse` — a named record rather than an anonymous object — so its schema is visible in the Scalar API reference alongside the 200 response.
+
 ## Key Design Decisions
 
 ### Minimal API with Clean Separation of Concerns
@@ -79,6 +81,15 @@ Data is stored in memory via `InMemoryPatientRepository`, seeded with a small se
 OpenAPI is configured out of the box (via `Microsoft.AspNetCore.OpenApi`), and [Scalar](https://github.com/scalar/scalar) is wired up to provide an interactive API reference UI — both are exposed in the Development environment only.
 
 Scalar is a modern alternative to Swagger UI. It reads the generated OpenAPI spec and presents a browser-based interface where developers can browse endpoints, inspect request/response schemas, and execute live requests against the running API without needing a separate tool like Postman or curl.
+
+**`TypedResults` and `.Produces<>()`**
+
+The endpoint uses `TypedResults` rather than the non-generic `Results`. This provides two concrete benefits:
+
+- **Compile-time safety** — the compiler enforces that the handler returns one of the declared result types, catching mismatches before runtime
+- **Accurate OpenAPI schema inference** — ASP.NET Core can statically analyse the `Results<Ok<PatientResponse>, NotFound<ErrorResponse>>` return type and generate precise response schemas automatically
+
+`.Produces<PatientResponse>(200)` and `.Produces<ErrorResponse>(404)` are also declared explicitly on the endpoint, ensuring Scalar displays the correct response shapes for both outcomes — not just `object`.
 
 ### Response DTO (`PatientResponse`)
 
