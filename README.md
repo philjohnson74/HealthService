@@ -200,6 +200,19 @@ Merging to `main` is intentionally not a separate trigger — if the PR check pa
 
 To enforce the PR check as a required status check, go to **Settings → Branches → Add rule for `main`** and enable **Require status checks to pass before merging**, selecting the `Build and Test` check. This makes the gate enforceable at the repository level rather than relying on convention.
 
+## Linting and Code Style
+
+[StyleCop.Analyzers](https://github.com/DotNetAnalyzers/StyleCopAnalyzers) is added to the API project and runs as part of the build. It enforces consistent code style and ordering rules — naming conventions, spacing, element ordering, and brace usage — surfacing violations as compiler warnings.
+
+`TreatWarningsAsErrors` is enabled on the API project, meaning any StyleCop violation will fail the build. This makes linting a hard gate rather than advisory output that accumulates and gets ignored.
+
+Code style rules are configured in two places:
+
+- **`.editorconfig`** — sets severity levels for individual rules, naming conventions, and suppresses rules that conflict with idiomatic modern C# (e.g. `SA1009` closing parenthesis spacing, which conflicts with multi-line record formatting, and `SA1600`/`SA1633` which require XML documentation headers not appropriate for this project)
+- **`stylecop.json`** — configures StyleCop-specific behaviour such as placing `using` directives outside the namespace and disabling XML file headers
+
+Because `TreatWarningsAsErrors` is set, the CI pipeline will also fail on any linting violation — keeping the codebase consistently styled from the first commit.
+
 ## Tech Stack
 
 - **.NET 10**

@@ -24,7 +24,10 @@ public class PatientService : IPatientService
         }
 
         if (_logger.IsEnabled(LogLevel.Debug))
+        {
             _logger.LogDebug("Patient with ID {PatientId} retrieved successfully", id);
+        }
+
         return patient;
     }
 }
