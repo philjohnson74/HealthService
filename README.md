@@ -1,6 +1,6 @@
 # HealthService - Patient API
 
-A minimal ASP.NET Core Web API for managing patient records, built as an MVP for a tech test submission.
+A minimal ASP.NET Core Web API for managing patient records, built as an MVP to show best practices for a modern .NET API endpoint.
 
 ## Overview
 
@@ -212,6 +212,16 @@ Code style rules are configured in two places:
 - **`stylecop.json`** — configures StyleCop-specific behaviour such as placing `using` directives outside the namespace and disabling XML file headers
 
 Because `TreatWarningsAsErrors` is set, the CI pipeline will also fail on any linting violation — keeping the codebase consistently styled from the first commit.
+
+## Use of AI
+
+The solution was built collaboratively with Claude (Anthropic's AI assistant), used as a knowledgeable pair programmer rather than a code generator. The distinction matters — AI wasn't used to produce a finished solution from a single prompt. Instead, it was used iteratively throughout the development process in the following ways:
+
+**Architecture and design decisions** — Decisions like using Minimal APIs with clean separation, introducing a service layer, adding a response DTO, and choosing TypedResults were discussed and reasoned through before being implemented. The AI explained the trade-offs, I decided what was appropriate for the context, and we implemented it together.
+
+**Testing strategy** — The testing pyramid was built deliberately: unit tests for isolated logic, integration tests via `WebApplicationFactory` for the full HTTP pipeline. The AI helped identify what was worth testing at each level and what wasn't — for example, it advised against adding brittle logger mock assertions, explaining why the value didn't justify the noise.
+
+**What I brought to it** — The requirements, the judgment calls on what to include vs. what was over-engineering, and the decisions about when to push back — for example, keeping the solution focused rather than adding complexity for its own sake. AI is good at knowing *how* to implement something; deciding *whether* to implement it is still a human judgment.
 
 ## Tech Stack
 
