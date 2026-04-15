@@ -108,6 +108,21 @@ A separate `CreatePatientRequest` or `UpdatePatientRequest` DTO would provide:
 - **Over-posting protection** — callers cannot supply fields like `Id` that should only be set by the system. The request DTO exposes only what the API intentionally accepts.
 - **Separation of concerns** — the shape of what is written can differ from what is read, without compromising the domain model or leaking internal structure.
 
+### Logging
+
+`PatientService` uses `ILogger<PatientService>`, injected via the constructor, to log meaningful events during request handling:
+
+| Event | Level | Rationale |
+|---|---|---|
+| Patient not found | `Warning` | Not an application error, but a pattern of 404s could indicate a bad client, stale references, or probing behaviour — worth surfacing above the noise floor |
+| Patient retrieved | `Debug` | Happy-path confirmation useful for tracing a specific request, but too noisy for production — disabled by default |
+
+Structured logging placeholders (`{PatientId}`) are used rather than string interpolation, so log values are queryable as first-class fields in tools like Seq or Application Insights.
+
+The `LogDebug` call is guarded with `IsEnabled(LogLevel.Debug)` to avoid evaluating arguments when debug logging is disabled — a minor but correct performance consideration.
+
+Unhandled exceptions are not explicitly logged here because ASP.NET Core's built-in exception handling middleware already captures and logs these at `Error` level — adding a second log would be duplication.
+
 ### Dependency Injection
 
 Services and repositories are registered with ASP.NET Core's built-in DI container and injected into endpoint handlers and services — keeping the code testable and decoupled without reaching for third-party IoC containers.

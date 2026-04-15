@@ -1,5 +1,6 @@
 using HealthService.Patient.Api.Data;
 using HealthService.Patient.Api.Services;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
@@ -13,7 +14,7 @@ public class PatientServiceTests
     public PatientServiceTests()
     {
         _repositoryMock = new Mock<IPatientRepository>();
-        _sut = new PatientService(_repositoryMock.Object);
+        _sut = new PatientService(_repositoryMock.Object, Mock.Of<ILogger<PatientService>>());
     }
 
     [Fact]
