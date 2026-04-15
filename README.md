@@ -21,6 +21,8 @@ HealthService/
 │   └── Patient/
 │       └── HealthService.Patient.Api.Tests/   # xUnit test project
 │           ├── Data/                          # Repository tests
+│           ├── Integration/                   # WebApplicationFactory integration tests
+│           ├── Models/                        # DTO mapping tests
 │           └── Services/                      # Service layer tests
 └── HealthService.slnx
 ```
@@ -133,19 +135,42 @@ From there you can:
 - Send live requests directly from the browser — no Postman or curl required
 - Inspect the raw OpenAPI spec at `http://localhost:5162/openapi/v1.json`
 
-## Running the Tests
+## Testing
+
+### The Testing Pyramid
+
+This project follows the testing pyramid — many fast, focused unit tests at the base, with fewer but broader integration tests above.
+
+**Unit tests** verify individual classes in complete isolation. Dependencies are replaced with Moq mocks, there is no I/O, and tests run in milliseconds. They are the right tool for testing business logic, mapping, and edge cases in a single component.
+
+**Integration tests** verify the full HTTP pipeline end-to-end using `WebApplicationFactory<Program>`, which spins up the real application in-process. They test things unit tests cannot: that routing is wired correctly, that JSON serialisation produces the right output over the wire, that middleware behaves as expected, and that all the components work together correctly. They are slower than unit tests and used more sparingly.
+
+| Layer | What is tested | Tool |
+|---|---|---|
+| Unit | `PatientService`, `InMemoryPatientRepository`, `PatientResponse.From()` | xUnit + Moq |
+| Integration | Full HTTP pipeline — routing, serialisation, status codes | xUnit + WebApplicationFactory |
+
+### Running the Tests
+
+Run all tests:
 
 ```bash
 dotnet test
 ```
 
-Or to run only the Patient API tests:
+Run only unit tests or integration tests by filtering on the namespace:
 
 ```bash
-dotnet test tests/Patient/HealthService.Patient.Api.Tests
+dotnet test --filter "FullyQualifiedName~Unit"
+dotnet test --filter "FullyQualifiedName~Integration"
 ```
 
-Tests are written with [xUnit](https://xunit.net/) and [Moq](https://github.com/devlooped/moq). The test project targets the service layer, using a mocked `IPatientRepository` to verify behaviour in isolation.
+### What the Integration Tests Cover
+
+- `GET /patients/{id}` with a valid ID returns `200` with a correctly shaped `PatientResponse`
+- `dateOfBirth` is serialised as a date-only string (e.g. `"1985-03-12"`) — proving the `DateOnly` shaping works end-to-end through JSON serialisation, not just at the mapping layer
+- `GET /patients/{id}` with an unknown ID returns `404` with an `ErrorResponse` body containing the patient ID
+- `GET /patients/abc` with a non-integer ID returns `404` — the `:int` route constraint means the route does not match at all rather than returning a `400`
 
 ## Tech Stack
 
