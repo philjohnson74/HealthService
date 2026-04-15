@@ -1,0 +1,41 @@
+root = true
+
+[*]
+indent_style = space
+indent_size = 4
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.cs]
+# Naming conventions
+dotnet_naming_rule.private_fields_should_be_camel_case.severity = warning
+dotnet_naming_rule.private_fields_should_be_camel_case.symbols = private_fields
+dotnet_naming_rule.private_fields_should_be_camel_case.style = camel_case_underscore_prefix
+dotnet_naming_symbols.private_fields.applicable_kinds = field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private
+dotnet_naming_style.camel_case_underscore_prefix.capitalization = camel_case
+dotnet_naming_style.camel_case_underscore_prefix.required_prefix = _
+
+# StyleCop — suppress rules not appropriate for this project
+dotnet_diagnostic.SA1600.severity = none  # Elements should be documented
+dotnet_diagnostic.SA1601.severity = none  # Partial elements should be documented
+dotnet_diagnostic.SA1602.severity = none  # Enumeration items should be documented
+dotnet_diagnostic.SA1633.severity = none  # File should have header
+dotnet_diagnostic.SA1652.severity = none  # Enable XML documentation output
+
+# SA1101: Prefix local calls with this — disabled, not idiomatic in modern C#
+dotnet_diagnostic.SA1101.severity = none
+
+# SA1309: Field names should not begin with underscore — disabled, we use _prefix convention
+dotnet_diagnostic.SA1309.severity = none
+
+# SX1309: Field names should begin with underscore — enable the StyleCop Extended version
+dotnet_diagnostic.SX1309.severity = warning
+
+# SA0001: XML comment analysis disabled — documentation not required for this project
+dotnet_diagnostic.SA0001.severity = none
+
+# SA1009: Closing parenthesis spacing — conflicts with idiomatic multi-line record/constructor formatting
+dotnet_diagnostic.SA1009.severity = none
