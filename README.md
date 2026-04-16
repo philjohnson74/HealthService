@@ -255,7 +255,7 @@ A GitHub Actions workflow runs on every push to `dev` and on every pull request 
 
 Merging to `main` is intentionally not a separate trigger — if the PR check passed, running the same suite again on merge would be redundant and waste CI time.
 
-To enforce the PR check as a required status check, go to **Settings → Branches → Add rule for `main`** and enable **Require status checks to pass before merging**, selecting the `Build and Test` check. This makes the gate enforceable at the repository level rather than relying on convention.
+The PR check is enforced as a required status check using **Settings → Branches → Add rule for `main`** and enabling **Require status checks to pass before merging**, selecting the `Build and Test` check. This makes the gate enforceable at the repository level rather than relying on convention.
 
 ## Linting and Code Style
 
