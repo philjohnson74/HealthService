@@ -137,18 +137,75 @@ The API will be available at:
 - HTTP: `http://localhost:5162`
 - HTTPS: `https://localhost:7288`
 
-### Interactive API Reference (Scalar)
+### Testing with Scalar (Browser)
 
-With the API running in Development, open the Scalar UI in your browser:
+With the API running, open the Scalar UI in your browser:
 
 ```
 http://localhost:5162/scalar/v1
 ```
 
-From there you can:
-- Browse the available endpoints and their expected request/response shapes
-- Send live requests directly from the browser — no Postman or curl required
-- Inspect the raw OpenAPI spec at `http://localhost:5162/openapi/v1.json`
+**Step-by-step — retrieve patient with ID 1:**
+
+1. Open `http://localhost:5162/scalar/v1` in your browser
+2. Click the **GET /patients/{id}** endpoint in the left-hand panel
+3. Click **Test Request**
+4. Enter `1` in the **id** field
+5. Click **Send**
+
+Expected response — `200 OK`:
+
+```json
+{
+  "id": 1,
+  "nhsNumber": "485 777 3456",
+  "name": "Alice Hartley",
+  "dateOfBirth": "1985-03-12",
+  "gpPractice": "Northside Medical Centre"
+}
+```
+
+To test the not-found case, enter any ID not in the seed data (e.g. `99`):
+
+Expected response — `404 Not Found`:
+
+```json
+{
+  "message": "Patient with ID 99 was not found."
+}
+```
+
+### Testing with curl
+
+Retrieve a patient by ID:
+
+```bash
+curl http://localhost:5162/patients/1
+```
+
+```json
+{
+  "id": 1,
+  "nhsNumber": "485 777 3456",
+  "name": "Alice Hartley",
+  "dateOfBirth": "1985-03-12",
+  "gpPractice": "Northside Medical Centre"
+}
+```
+
+Other seeded patient IDs — `2` (Ben Okafor), `3` (Clara Mendez), `4` (David Nguyen), `5` (Eleanor Walsh):
+
+```bash
+curl http://localhost:5162/patients/3
+```
+
+Not-found case:
+
+```bash
+curl -i http://localhost:5162/patients/99
+```
+
+The `-i` flag includes the response headers, confirming the `404` status code alongside the error body.
 
 ## Testing
 
